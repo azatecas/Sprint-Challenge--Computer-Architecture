@@ -12,6 +12,7 @@ In your challenge this week, you will demonstrate proficiency by adding _conditi
 **Read these instructions carefully. Understand exactly what is expected
 _before_ starting this Sprint Challenge.**
 
+.
 This is an individual assessment. All work must be your own. Your challenge
 score is a measure of your ability to work independently using the material
 covered through this sprint. You need to demonstrate proficiency in the concepts
@@ -24,6 +25,8 @@ proficiency with Computer Architecture and your command of the related concepts
 and techniques.
 
 You have three hours to complete this challenge. Plan your time accordingly.
+
+.
 
 ## Commits
 
@@ -38,9 +41,9 @@ In this code challenge, you will add _conditional jumps_ (AKA _conditional branc
 
 Options for submission, whichever is easier for you:
 
-* Copy your source into this repo, or...
+- Copy your source into this repo, or...
 
-* Submit a PR for the Sprint Challenge from the `Computer-Architecture` repo
+- Submit a PR for the Sprint Challenge from the `Computer-Architecture` repo
   you've been using all along.
 
 ## Minimum Viable Product

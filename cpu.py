@@ -138,6 +138,11 @@ class CPU:
 
     def handle_JEQ(self):
         reg = self.ram_read(self.pc + 1)
+        address = self.reg[reg]
+        if self.fl == 0b00000001:
+            self.pc = address
+        else:
+            self.pc += 2
 
     def load(self, file_name):
         """Load a program into memory."""

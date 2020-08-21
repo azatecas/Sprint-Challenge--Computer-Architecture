@@ -57,7 +57,6 @@ class CPU:
         self.branchtable[NOT] = self.handle_NOT
         self.branchtable[SHL] = self.handle_SHL
         self.branchtable[SHR] = self.handle_SHR
-        self.branchtable[MOD] = self.handle_MOD
 
     def ram_read(self, mar):
         return self.ram[mar]
@@ -131,12 +130,20 @@ class CPU:
     def handle_SHR(self, a, b):
         self.alu("SHR", a, b)
 
-    def handle_JMP(self):
+    def handle_JMP(self, a, b):
         reg = self.ram_read(self.pc + 1)
         address = self.reg[reg]
         self.pc = address
 
-    def handle_JEQ(self):
+    def handle_JEQ(self, a, b):
+        reg = self.ram_read(self.pc + 1)
+        address = self.reg[reg]
+        if self.fl == 0b00000001:
+            self.pc = address
+        else:
+            self.pc += 2
+
+    def handle_JNE(self, a, b):
         reg = self.ram_read(self.pc + 1)
         address = self.reg[reg]
         if self.fl == 0b00000001:
@@ -248,7 +255,7 @@ class CPU:
             # ir_length = 1 + op_count
             self.branchtable[ir](ir2, ir3)
             if ir != CALL and ir != RET and ir != JMP and ir != JEQ and ir != JNE:
-                self.pc += ir_length
+                self.pc += (ir >> 6) + 1
 
             if ir == 0 or None:  # check instruction for print(PRN)
                 print(f"Unknown Instruction: {ir}")

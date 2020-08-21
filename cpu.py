@@ -47,6 +47,17 @@ class CPU:
         self.branchtable[POP] = self.handle_POP
         self.branchtable[CALL] = self.handle_CALL
         self.branchtable[RET] = self.handle_RET
+        self.branchtable[CMP] = self.handle_CMP
+        self.branchtable[JMP] = self.handle_JMP
+        self.branchtable[JEQ] = self.handle_JEQ
+        self.branchtable[JNE] = self.handle_JNE
+        self.branchtable[AND] = self.handle_AND
+        self.branchtable[OR] = self.handle_OR
+        self.branchtable[XOR] = self.handle_XOR
+        self.branchtable[NOT] = self.handle_NOT
+        self.branchtable[SHL] = self.handle_SHL
+        self.branchtable[SHR] = self.handle_SHR
+        self.branchtable[MOD] = self.handle_MOD
 
     def ram_read(self, mar):
         return self.ram[mar]
@@ -54,8 +65,8 @@ class CPU:
     def ram_write(self, mar, mdr):
         self.ram[mar] = mdr
 
-    def handle_LDI(self, operand_a, operand_b):
-        self.reg[operand_a] = operand_b
+    def handle_LDI(self, a, b):
+        self.reg[a] = b
 
     def handle_HLT(self, a, b):
         self.running = False
@@ -99,6 +110,35 @@ class CPU:
         self.reg[7] += 1
         self.pc = return_address
 
+    def handle_CMP(self, a, b):
+        self.alu("CMP", a, b)
+
+    def handle_AND(self, a, b):
+        self.alu("AND", a, b)
+
+    def handle_OR(self, a, b):
+        self.alu("OR", a, b)
+
+    def handle_XOR(self, a, b):
+        self.alu("XOR", a, b)
+
+    def handle_NOT(self, a, b):
+        self.alu("NOT", a, b)  # maybe NONE as second argument
+
+    def handle_SHL(self, a, b):
+        self.alu("SHL", a, b)
+
+    def handle_SHR(self, a, b):
+        self.alu("SHR", a, b)
+
+    def handle_JMP(self):
+        reg = self.ram_read(self.pc + 1)
+        address = self.reg[reg]
+        self.pc = address
+
+    def handle_JEQ(self):
+        reg = self.ram_read(self.pc + 1)
+
     def load(self, file_name):
         """Load a program into memory."""
 
@@ -125,8 +165,47 @@ class CPU:
         # elif op == "SUB": etc
         elif op == "MUL":
             self.reg[reg_a] *= self.reg[reg_b]
+
         elif op == "PRN":
             self.handle_PRN(reg_a)
+
+        elif op == "CMP":
+            if self.reg[reg_a] == self.reg[reg_b]:
+                self.fl = 0b00000001
+            if self.reg[reg_a] > self.reg[reg_b]:
+                self.fl = 0b00000010
+            if self.reg[reg_a] < self.reg[reg_b]:
+                self.fl = 0b00000100
+
+        elif op == "AND":
+            result = self.reg[reg_a] & self.reg[reg_b]
+            self.reg[reg_a] = result
+
+        elif op == "OR":
+            result = self.reg[reg_a] | self.reg[reg_b]
+            self.reg[reg_a] = result
+
+        elif op == "XOR":
+            result = self.reg[reg_a] ^ self.reg[reg_b]
+            self.reg[reg_a] = result
+
+        elif op == "NOT":
+            self.reg[reg_a] = ~self.reg[reg_a]
+        elif op == "SHL":
+            result = self.reg[reg_a] << self.reg[reg_b]
+            self.reg[reg_a] = result
+
+        elif op == "SHR":
+            result = self.reg[reg_a] >> self.reg[reg_b]
+            self.reg[reg_a] = result
+
+        elif op == "MOD":
+            if self.reg[reg_b] == 0:
+                print("Error: Dividing by Zero")
+                self.handle_HLT()
+            else:
+                result = self.reg[reg_a] % self.reg[reg_b]
+                self.reg[reg_a] = result
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -163,8 +242,8 @@ class CPU:
             # op_count = value >> 6
             # ir_length = 1 + op_count
             self.branchtable[ir](ir2, ir3)
-            if ir != CALL and ir != RET:
-                self.pc += (ir >> 6) + 1
+            if ir != CALL and ir != RET and ir != JMP and ir != JEQ and ir != JNE:
+                self.pc += ir_length
 
             if ir == 0 or None:  # check instruction for print(PRN)
                 print(f"Unknown Instruction: {ir}")

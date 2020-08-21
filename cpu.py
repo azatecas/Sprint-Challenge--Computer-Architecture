@@ -13,10 +13,10 @@ PUSH = 0b01000101
 POP = 0b01000110
 CALL = 0b01010000
 RET = 0b00010001
-CMP = 0b10100111
-JMP = 0b01010100
-JEQ = 0b01010101
-JNE = 0b01010110
+CMP = 0b10100111  # mvp
+JMP = 0b01010100  # mvp
+JEQ = 0b01010101  # mvp
+JNE = 0b01010110  # mvp
 AND = 0b10101000
 OR = 0b10101010
 XOR = 0b10101011
@@ -146,7 +146,7 @@ class CPU:
     def handle_JNE(self, a, b):
         reg = self.ram_read(self.pc + 1)
         address = self.reg[reg]
-        if self.fl == 0b00000001:
+        if self.fl != 0b00000001:
             self.pc = address
         else:
             self.pc += 2
@@ -202,7 +202,7 @@ class CPU:
             self.reg[reg_a] = result
 
         elif op == "NOT":
-            self.reg[reg_a] = ~self.reg[reg_a]
+            self.reg[reg_a] = ~(self.reg[reg_a])
         elif op == "SHL":
             result = self.reg[reg_a] << self.reg[reg_b]
             self.reg[reg_a] = result
@@ -255,7 +255,7 @@ class CPU:
             # ir_length = 1 + op_count
             self.branchtable[ir](ir2, ir3)
             if ir != CALL and ir != RET and ir != JMP and ir != JEQ and ir != JNE:
-                self.pc += (ir >> 6) + 1
+                self.pc += int(ir >> 6) + 1
 
             if ir == 0 or None:  # check instruction for print(PRN)
                 print(f"Unknown Instruction: {ir}")
